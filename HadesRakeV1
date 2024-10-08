@@ -1,0 +1,412 @@
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+local Window = Rayfield:CreateWindow({
+   Name = "🐶 Hades Hub | The Rake REMASTERED ☠",
+   LoadingTitle = "🐶 Hades Hub | Loading",
+   LoadingSubtitle = "by Maksiu_Kozak",
+   ConfigurationSaving = {
+      Enabled = true,
+      FolderName = nil, -- Create a custom folder for your hub/game
+      FileName = "HadesRake"
+   },
+   Discord = {
+      Enabled = false,
+      Invite = "noinvitelink", -- The Discord invite code, do not include discord.gg/. E.g. discord.gg/ABCD would be ABCD
+      RememberJoins = true -- Set this to false to make them join the discord every time they load it up
+   },
+   KeySystem = false, -- Set this to true to use our key system
+   KeySettings = {
+      Title = "Untitled",
+      Subtitle = "Key System",
+      Note = "No method of obtaining the key is provided",
+      FileName = "Key", -- It is recommended to use something unique as other scripts using Rayfield may overwrite your key file
+      SaveKey = true, -- The user's key will be saved, but if you change the key, they will be unable to use your script
+      GrabKeyFromSite = false, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
+      Key = {"Hello"} -- List of keys that will be accepted by the system, can be RAW file links (pastebin, github etc) or simple strings ("hello","key22")
+   }
+})
+
+local MainTab = Window:CreateTab("Main", 17719019139) -- Title, Image
+local MiscSection = MainTab:CreateSection("Miscellaneous")
+
+local Button = MainTab:CreateButton({
+   Name = "Remove all trees (very glitchy)",
+   Callback = function()
+   -- Get the workspace
+local workspace = game:GetService("Workspace")
+
+-- Function to remove all instances named "Trees"
+local function removeTrees()
+    for _, instance in pairs(workspace:GetDescendants()) do
+        if instance.Name == "Trees" then
+            instance:Destroy()
+        end
+    end
+end
+
+-- Call the function
+removeTrees()
+
+   end,
+})
+
+local PlayerTab = Window:CreateTab("Player", 17720569759) -- Title, Image
+local Section = PlayerTab:CreateSection("Movement")
+
+local Button = PlayerTab:CreateButton({
+   Name = "Speed Boost",
+   Callback = function()
+       local player = game.Players.LocalPlayer
+
+local humanoid = player.Character:WaitForChild("Humanoid")
+local desiredWalkSpeed = 31
+
+-- Function to update the player's walk speed
+local function updateWalkSpeed()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+
+    if character then
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            humanoid.WalkSpeed = desiredWalkSpeed
+        end
+    end
+end
+
+-- Update walk speed initially
+updateWalkSpeed()
+
+-- Update walk speed continuously
+game:GetService("RunService").RenderStepped:Connect(updateWalkSpeed)
+
+-- Ensure walk speed is set when the character respawns
+game.Players.LocalPlayer.CharacterAdded:Connect(updateWalkSpeed)
+   end,
+})
+
+local Button = PlayerTab:CreateButton({
+   Name = "Noclip (Press N to turn on and off) [glitchy]",
+   Callback = function()
+   local toggleKey = Enum.KeyCode.N
+local noclipEnabled = false
+local player = game.Players.LocalPlayer
+
+local function toggleNoclip()
+    local character = player.Character or player.CharacterAdded:Wait()
+    noclipEnabled = not noclipEnabled
+
+    for _, part in pairs(character:GetDescendants()) do
+        if part:IsA("BasePart") then
+            part.CanCollide = not noclipEnabled
+        end
+    end
+end
+
+local function maintainNoclip()
+    if noclipEnabled then
+        local character = player.Character
+        if character then
+            for _, part in pairs(character:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.CanCollide = false
+                end
+            end
+        end
+    end
+end
+
+game:GetService("UserInputService").InputBegan:Connect(function(input, gameProcessed)
+    if not gameProcessed and input.KeyCode == toggleKey then
+        toggleNoclip()
+    end
+end)
+
+game:GetService("RunService").Stepped:Connect(maintainNoclip)
+
+player.CharacterAdded:Connect(function(character)
+    character:WaitForChild("HumanoidRootPart")
+    wait(0.1)
+    if noclipEnabled then
+        toggleNoclip()
+    end
+end)
+   end,
+})
+
+local VisualTab = Window:CreateTab("Visual", 17719019108) -- Title, Image
+local CameraSection = VisualTab:CreateSection("Camera")
+-- hi
+local LightingSection = VisualTab:CreateSection("Lighting")
+local Button = VisualTab:CreateButton({
+   Name = "Fullbright",
+   Callback = function()
+   -- Fullbright and Remove Fog LocalScript for Roblox
+local function applyFullbright()
+    local lighting = game:GetService("Lighting")
+    
+    lighting.Ambient = Color3.fromRGB(255, 255, 255)
+    lighting.Brightness = 2
+    lighting.OutdoorAmbient = Color3.fromRGB(255, 255, 255)
+    lighting.ClockTime = 14  -- Set the time to noon for maximum brightness
+    
+    -- Remove fog
+    lighting.FogEnd = 100000
+    lighting.FogStart = 0
+    lighting.FogColor = Color3.fromRGB(255, 255, 255)
+end
+
+-- Apply Fullbright and remove fog on script run
+applyFullbright()
+
+-- Optional: Apply Fullbright and remove fog continuously
+game:GetService("RunService").RenderStepped:Connect(applyFullbright)
+
+   end,
+})
+
+local CharacterSection = VisualTab:CreateSection("Character")
+
+local Button = VisualTab:CreateButton({
+   Name = "Hide body",
+   Callback = function()
+   local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+
+local function setTransparency(part, transparency)
+    if part:IsA("BasePart") then
+        part.Transparency = transparency
+        if part:IsA("MeshPart") then
+            part.TextureID = ""
+        elseif part:IsA("Part") then
+            for _, decal in pairs(part:GetChildren()) do
+                if decal:IsA("Decal") or decal:IsA("Texture") then
+                    decal.Transparency = transparency
+                end
+            end
+        end
+    elseif part:IsA("Accessory") then
+        if part:FindFirstChild("Handle") then
+            setTransparency(part.Handle, transparency)
+        end
+    end
+end
+
+for _, part in pairs(character:GetChildren()) do
+    setTransparency(part, 1)
+end
+
+player.CharacterAdded:Connect(function(char)
+    for _, part in pairs(char:GetChildren()) do
+        setTransparency(part, 1)
+    end
+end)
+
+   end,
+})
+
+local ESPSection = VisualTab:CreateSection("ESP")
+
+local Button = VisualTab:CreateButton({
+   Name = "Rake ESP",
+   Callback = function()
+   local function addESP(model)
+    if model:FindFirstChild("ESPBox") then
+        return
+    end
+
+    local boxAdornment = Instance.new("BoxHandleAdornment")
+    boxAdornment.Name = "ESPBox"
+    boxAdornment.Adornee = model
+    boxAdornment.Size = model:GetExtentsSize()
+    boxAdornment.Color3 = Color3.fromRGB(255, 0, 255)  -- Pink color
+    boxAdornment.Transparency = 0.6  -- Transparency
+    boxAdornment.ZIndex = 0
+    boxAdornment.AlwaysOnTop = true
+    boxAdornment.Parent = model
+
+    local billboardGui = Instance.new("BillboardGui")
+    billboardGui.Name = "ESPLabel"
+    billboardGui.Adornee = model
+    billboardGui.Size = UDim2.new(1, 0, 1, 0)
+    billboardGui.StudsOffset = Vector3.new(0, model:GetExtentsSize().Y / 2 + 0.5, 0)
+    billboardGui.AlwaysOnTop = true
+    billboardGui.Parent = model
+
+    local textLabel = Instance.new("TextLabel")
+    textLabel.Text = "Rake"
+    textLabel.Size = UDim2.new(15, 0, 0, 50)
+    textLabel.TextColor3 = Color3.fromRGB(128, 0, 128)  -- Purple color
+    textLabel.BackgroundTransparency = 1
+    textLabel.TextScaled = true
+    textLabel.Parent = billboardGui
+end
+
+local function updateESP()
+    for _, model in ipairs(workspace:GetDescendants()) do
+        if model:IsA("Model") and model.Name == "Rake" then
+            addESP(model)
+        end
+    end
+end
+
+updateESP()
+
+game:GetService("RunService").RenderStepped:Connect(updateESP)
+   end,
+})
+
+local Button = VisualTab:CreateButton({
+   Name = "Players ESP",
+   Callback = function()
+   -- Services
+local players = game:GetService("Players")
+local runService = game:GetService("RunService")
+
+-- Create ESP for a player
+local function createESP(player)
+    -- Create Highlight
+    local highlight = Instance.new("Highlight")
+    highlight.Parent = player.Character
+    highlight.FillColor = Color3.fromRGB(255, 0, 0)
+    highlight.OutlineColor = Color3.fromRGB(0, 0, 0)
+    highlight.FillTransparency = 0.5
+    highlight.OutlineTransparency = 0
+
+    -- Create BillboardGui
+    local billboardGui = Instance.new("BillboardGui")
+    billboardGui.Name = "PlayerNameESP"
+    billboardGui.Parent = player.Character:WaitForChild("HumanoidRootPart")
+    billboardGui.AlwaysOnTop = true
+    billboardGui.Size = UDim2.new(0, 100, 0, 50)
+    billboardGui.StudsOffset = Vector3.new(0, 3, 0)
+
+    -- Create TextLabel for player name
+    local nameLabel = Instance.new("TextLabel")
+    nameLabel.Parent = billboardGui
+    nameLabel.BackgroundTransparency = 1
+    nameLabel.Text = player.Name
+    nameLabel.Size = UDim2.new(1, 0, 1, 0)
+    nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    nameLabel.TextStrokeTransparency = 0.5
+end
+
+-- Update ESP
+local function updateESP()
+    for _, player in ipairs(players:GetPlayers()) do
+        if player ~= players.LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            if not player.Character:FindFirstChildOfClass("Highlight") then
+                createESP(player)
+            end
+        end
+    end
+end
+
+-- Update Loop
+runService.RenderStepped:Connect(updateESP)
+
+   end,
+})
+
+local Button = VisualTab:CreateButton({
+   Name = "Crate ESP",
+   Callback = function()
+   local function addESP(model)
+    if model:FindFirstChild("ESPBox") then
+        return
+    end
+
+    local boxAdornment = Instance.new("BoxHandleAdornment")
+    boxAdornment.Name = "ESPBox"
+    boxAdornment.Adornee = model
+    boxAdornment.Size = model:GetExtentsSize()
+    boxAdornment.Color3 = Color3.fromRGB(249, 233, 153)  -- Pink color
+    boxAdornment.Transparency = 0.6  -- Transparency
+    boxAdornment.ZIndex = 0
+    boxAdornment.AlwaysOnTop = true
+    boxAdornment.Parent = model
+
+    local billboardGui = Instance.new("BillboardGui")
+    billboardGui.Name = "ESPLabel"
+    billboardGui.Adornee = model
+    billboardGui.Size = UDim2.new(1, 0, 1, 0)
+    billboardGui.StudsOffset = Vector3.new(0, model:GetExtentsSize().Y / 2 + 0.5, 0)
+    billboardGui.AlwaysOnTop = true
+    billboardGui.Parent = model
+
+    local textLabel = Instance.new("TextLabel")
+    textLabel.Text = "Crate"
+    textLabel.Size = UDim2.new(15, 0, 0, 50)
+    textLabel.TextColor3 = Color3.fromRGB(249, 233, 153)  -- Mint color
+    textLabel.BackgroundTransparency = 1
+    textLabel.TextScaled = true
+    textLabel.Parent = billboardGui
+end
+
+local function updateESP()
+    for _, model in ipairs(workspace:GetDescendants()) do
+        if model:IsA("Model") and model.Name == "Box" then
+            addESP(model)
+        end
+    end
+end
+
+updateESP()
+
+game:GetService("RunService").RenderStepped:Connect(updateESP)
+   end,
+})
+
+local Button = VisualTab:CreateButton({
+   Name = "Trap ESP",
+   Callback = function()
+   -- Create a function to add ESP to a model
+local function addESP(model)
+    -- Check if the model is already adorned with ESP
+    if model:FindFirstChild("ESPBox") then
+        return
+    end
+
+    -- Create a new BoxHandleAdornment
+    local boxAdornment = Instance.new("BoxHandleAdornment")
+    boxAdornment.Name = "ESPBox"
+    boxAdornment.Adornee = model
+    boxAdornment.Size = model:GetExtentsSize()
+    boxAdornment.Color3 = Color3.fromRGB(123, 46, 47)
+    boxAdornment.Transparency = 0.6  -- Transparency
+    boxAdornment.ZIndex = 0
+    boxAdornment.AlwaysOnTop = true
+    boxAdornment.Parent = model
+
+    -- Create a BillboardGui for the text
+    local billboardGui = Instance.new("BillboardGui")
+    billboardGui.Name = "ESPLabel"
+    billboardGui.Adornee = model
+    billboardGui.Size = UDim2.new(1, 0, 1, 0)
+    billboardGui.StudsOffset = Vector3.new(0, model:GetExtentsSize().Y / 2 + 0.5, 0)
+    billboardGui.AlwaysOnTop = true
+    billboardGui.Parent = model
+
+    -- Create the text label
+    local textLabel = Instance.new("TextLabel")
+    textLabel.Text = "Trap"
+    textLabel.Size = UDim2.new(1, 0, 0, 50)
+    textLabel.TextColor3 = Color3.fromRGB(123, 46, 47)
+    textLabel.BackgroundTransparency = 1
+    textLabel.TextScaled = true
+    textLabel.Parent = billboardGui
+end
+
+local function updateESP()
+    for _, model in ipairs(workspace:GetDescendants()) do
+        if model:IsA("Model") and model.Name == "RakeTrapModel" then
+            addESP(model)
+        end
+    end
+end
+
+updateESP()
+
+game:GetService("RunService").RenderStepped:Connect(updateESP)
+   end,
+})
